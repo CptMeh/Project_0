@@ -9,7 +9,7 @@ import java.io.PrintStream;
  * The JFrame contains an editable input field and number and symbol buttons.
  */
 public class Calculator extends JFrame {
-    private final Operations_V3 op;
+    private final Operations op;
     private PrintStream output;
 
     public static void main(String[] args) {
@@ -21,7 +21,7 @@ public class Calculator extends JFrame {
         ButtonGrid buttonGrid;
         setUp(textArea);
         this.output = output;
-        this.op = new Operations_V3(textArea);
+        this.op = new Operations(textArea);
         System.setOut(output);
         buttonGrid = new ButtonGrid(op, this.output);
 

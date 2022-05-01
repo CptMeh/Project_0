@@ -4,14 +4,15 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 /**
- * New Version of {@link Operations_V1}
+ * Responsible for all addition, subtraction, multiplication, and division operations.
+ * It saves the result of the last executed operation.
  *
  * TODO:
  *  - Sub
  *  - Brackets und Punkt vor Strich (See note)
  *  - the calcArr should be parsed from top to bottom, so the first sub-calc gets processed first
  */
-public class Operations_V3 {
+public class Operations {
 
     private double result;
     private double tempRes;
@@ -21,7 +22,7 @@ public class Operations_V3 {
     private ArrayList<ArrayList<String>> calcArr; //the complete calculation
     private static final String SIGNS = "+-*/.?"; //? is for denoting the index of a sub-calculation
 
-    public Operations_V3(JTextArea textArea) {
+    public Operations(JTextArea textArea) {
         this.textArea = textArea;
         calc = new StringBuilder();
         calcArr = new ArrayList<>();
@@ -30,7 +31,7 @@ public class Operations_V3 {
     /**
      * Testing-Constructor
      */
-    public Operations_V3(StringBuilder calc) {
+    public Operations(StringBuilder calc) {
         this.calc = calc;
         this.calcArr = new ArrayList<>();
     }
@@ -38,7 +39,7 @@ public class Operations_V3 {
     /**
      * Testing-Constructor
      */
-    public Operations_V3() {
+    public Operations() {
         this.calc = new StringBuilder();
         this.calcArr = new ArrayList<>();
     }
@@ -71,57 +72,40 @@ public class Operations_V3 {
     }
 
     /**
-     * Calculates the complete calculation by first solving all sub-calculations and putting the
-     * Results into the overall calculation.
+     * ({@link Operations#evaluate}) Goes through the calc StringBuilder and decides if a character is a number or
+     * an operation. If the Input is invalid, the process is stopped.
      */
-    private void calculate() {
-        ArrayList<String> subCalc;
-        char sign;
+    private void sortCharacters() throws InvalidInputException {
+        ArrayList<Integer[]> bracketIndices;
+        int i = 0;
 
-        for (int i = 0; i < calcArr.size(); i++) {
-            tempRes = 0;
-            sign = ' ';
-            subCalc = calcArr.get(i);
-            insertSubResult(subCalc);
-
-            for (int j = 0; j < subCalc.size(); j++) {
-                sign = solve(sign, subCalc.get(j));
+        if (calc.toString().contains("(")) {
+            bracketIndices = findBrackets();
+            while (bracketIndices.size() != 0) {
+                creatSubCalculations(bracketIndices.get(0)[0], bracketIndices.get(0)[1], i);
+                bracketIndices = findBrackets();
+                i++;
             }
-            calcArr.get(i).clear();
-            calcArr.get(i).add(tempRes + "");
+            calcArr.add(splitCalc(temp));
+        } else if (calc.toString().contains("*") || calc.toString().contains("/")) {
+
         }
-        result = tempRes;
+        calcArr.add(splitCalc(temp));
     }
 
     /**
-     * Decides, weather a character is an operation sign or a number. Then it will hand them to {@link Operations_V3#pickOperation}
-     * where it is decided what will happen.
+     * ({@link Operations#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all
+     * involved elements in the calculation, putting them in a separate ArrayList, and adding them into calcArr.
+     * Then it replaces the extracted sub-calculation in the main calculation with "?i", wherein i is
+     * the index of the sub-calculation.
      *
-     * @param sign
-     * @param character
+     * @param start
+     * @param end
+     * @param groupIndex
      */
-    private char solve(char sign, String character) {
-        if (!character.equals("(") && !character.equals(")")) {
-            if (SIGNS.contains(character + "")) {
-                sign = character.charAt(0);
-            } else {
-                pickOperation(Double.parseDouble(character), sign);
-            }
-        }
-        return sign;
-    }
-
-    /**
-     * Finds the Result of the sub-calculation in subCalc at the given index and inserts it into the calculation.
-     *
-     * @param subCalc
-     */
-    private void insertSubResult(ArrayList<String> subCalc) {
-        for (int j = 0; j < subCalc.size(); j++) {
-            if (subCalc.get(j).contains("?")) {
-                subCalc.set(j, calcArr.get(Integer.parseInt(subCalc.get(j).charAt(1) + "")).get(0));
-            }
-        }
+    private void creatSubCalculations(int start, int end, int groupIndex) {
+        calcArr.add(splitCalc(new StringBuilder(temp.substring(start + 1, end))));
+        temp.replace(start, end+1, "?" + groupIndex);
     }
 
     /**
@@ -130,78 +114,73 @@ public class Operations_V3 {
      */
     public ArrayList<String> splitCalc(StringBuilder calcToSplit) {
         ArrayList<String> split = new ArrayList<>();
+        StringBuilder floatNum;
         int counter = 0;
 
         counter = splitUpAndCountPoints(split, calcToSplit, counter);
+        concatenateNumber(split);
 
-        while (counter > 0) {
-            for (int i = 0; i < split.size(); i++) {
-                if (foundFloat(split, i)) break;
-            }
-            counter--;
-        }
+        findFloatNumbers(split, counter);
+
         return split;
     }
 
     /**
      * Searches the split ArrayList for all digits of a float. If all were found, all the digits are deleted
-     * and the complete float will be inserted into split at the given index.
+     * and the complete float will be inserted into split.
      *
-     * @param split     ArrayList<String> containing the individual digits and signs
-     * @param index     index of the '.' in split
+     * @param split       ArrayList<String> containing the individual digits and signs
+     * @param counter     amount of float numbers to be assembled
      */
-    private boolean foundFloat(ArrayList<String> split, int index) {
-        StringBuilder num = new StringBuilder();
-        int right = 0;
-        int left = 0;
-
-        if (split.get(index).equals(".")) {
-            left = getLeftSide(split, num, left, index);
-            num.reverse();
-            num.append(".");
-            getRightSide(split, num, right, left, index);
-            split.set((index - left), num.toString());
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Finds all the digits on the left side of a float and adds them to the num StringBuilder.
-     *
-     * @param split     ArrayList<String> containing the individual digits and signs
-     * @param num       StringBuilder to be filled with the float digits
-     * @param left      amount of digits on the left
-     * @param index     index of the '.' in split
-     *
-     * @return integer left, the amount of digits which were removed from split on the left to be added to num.
-     */
-    private int getLeftSide(ArrayList<String> split, StringBuilder num, int left, int index) {
-        for (int j = index - 1; j >= 0; j--, left++) {
-            if (findAllDigits(split, index -(1+ left), num)) {
-                break;
-            }
-        }
-        return left;
-    }
-
-    /**
-     * Finds all the digits on the right side of a float and adds them to the num StringBuilder. Then the
-     * StringBuilder replaces the '.' in the split ArrayList.
-     *
-     * @param split     ArrayList<String> containing the individual digits and signs
-     * @param num       StringBuilder to be filled with the float digits
-     * @param right     amount of digits on the right
-     * @param left      amount of digits on the left
-     * @param index     index of the '.' in split
-     */
-    private void getRightSide(ArrayList<String> split, StringBuilder num, int right, int left, int index) {
-        for (int j = split.size() - (index + 1); j < split.size() - 1; j++, right++) {
-            if (findAllDigits(split, (index - left)+1, num)) {
-                break;
+    private void findFloatNumbers(ArrayList<String> split, int counter) {
+        StringBuilder floatNum;
+        for (int i = counter; i > 0; i--) {
+            for (int j = 0; j < split.size(); j++) {
+                if (split.get(j).equals(".")) {
+                    floatNum = new StringBuilder();
+                    floatNum.append(split.remove(j - 1));
+                    floatNum.append(split.remove(j - 1));
+                    floatNum.append(split.get(j - 1));
+                    split.set(j-1, floatNum.toString());
+                    break;
+                }
             }
         }
     }
+
+    /**
+     * Finds all digits of a multi-digit integer and concatenates them into a single number.
+     */
+    private void concatenateNumber(ArrayList<String> split) {
+        StringBuilder num;
+        int counter;
+
+        for (int i = 0; i < split.size(); i++) {
+            num = new StringBuilder();
+            counter = concatenateDigits(split, num, i);
+            insertFloatIntoSplit(split, num, counter, i);
+        }
+    }
+
+    private void insertFloatIntoSplit(ArrayList<String> split, StringBuilder num, int counter, int i) {
+        if (counter >= 1) {
+            split.set(i, num.toString());
+            counter--;
+            for (int j = counter; j > 0; j--) {
+                split.remove(i +1);
+            }
+        }
+    }
+
+    private int concatenateDigits(ArrayList<String> split, StringBuilder num, int i) {
+        int counter = 0;
+        while ((i + counter) < split.size() && !SIGNS.contains(split.get(i)) && !SIGNS.contains(split.get(i + counter))) {
+            num.append(split.get(i + counter));
+            counter++;
+        }
+        return counter;
+    }
+
 
     /**
      * Adds each character from calc to the split ArrayList.
@@ -227,61 +206,9 @@ public class Operations_V3 {
         return counter;
     }
 
-    /**
-     * Checks if a character is a operation sign or a variable.
-     *
-     * @param split     ArrayList<String> containing the individual digits and signs
-     * @param num       StringBuilder to be filled with the float digits
-     * @param index     index of the character in split
-     */
-    private boolean findAllDigits(ArrayList<String> split, int index, StringBuilder num) {
-        if(!SIGNS.contains(split.get(index)) && !split.get(index + 1).equals("?")) {
-            num.append(split.remove(index));
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     /**
-     * ({@link Operations_V3#evaluate}) Goes through the calc StringBuilder and decides if a character is a number or
-     * an operation. If the Input is invalid, the process is stopped.
-     */
-    private void sortCharacters() throws InvalidInputException {
-        ArrayList<Integer[]> bracketIndices;
-        int i = 0;
-
-        if (calc.toString().contains("(")) {
-            bracketIndices = findBrackets();
-            while (bracketIndices.size() != 0) {
-                creatSubCalculations(bracketIndices.get(0)[0], bracketIndices.get(0)[1], i);
-                bracketIndices = findBrackets();
-                i++;
-            }
-            calcArr.add(splitCalc(temp));
-        } else if (calc.toString().contains("*") || calc.toString().contains("/")) {
-
-        }
-        calcArr.add(splitCalc(temp));
-    }
-
-    /**
-     * ({@link Operations_V3#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all
-     * involved elements in the calculation, putting them in a separate ArrayList, and adding them into calcArr.
-     * Then it replaces the extracted sub-calculation in the main calculation with "?i", wherein i is
-     * the index of the sub-calculation.
-     *
-     * @param start
-     * @param end
-     * @param groupIndex
-     */
-    private void creatSubCalculations(int start, int end, int groupIndex) {
-        calcArr.add(splitCalc(new StringBuilder(temp.substring(start + 1, end))));
-        temp.replace(start, end+1, "?" + groupIndex);
-    }
-
-    /**
-     * ({@link Operations_V3#sortCharacters}) Finds all the indices of the brackets in the calculation.
+     * ({@link Operations#sortCharacters}) Finds all the indices of the brackets in the calculation.
      *
      * @throws InvalidInputException if open brackets are left unclosed.
      */
@@ -315,7 +242,7 @@ public class Operations_V3 {
     }
 
     /**
-     * ({@link Operations_V3#findBrackets}) Find the individual bracket groups in the calc StringBuilder.
+     * ({@link Operations#findBrackets}) Find the individual bracket groups in the calc StringBuilder.
      *
      * @param bracketGroups     ArrayList<Integer[]> to be filled with the index-pairs of the bracket groups
      * @param startIndices      ArrayList<Integer> contains all indices of '(' brackets
@@ -334,6 +261,58 @@ public class Operations_V3 {
         } else if (bracketsNextToBrackets(startIndices, endIndices)) {
             //custom shit
         } */
+    }
+
+    /**
+     * Calculates the complete calculation by first solving all sub-calculations and putting the
+     * Results into the overall calculation.
+     */
+    private void calculate() {
+        char sign;
+
+        for (ArrayList<String> subCalc : calcArr) {
+            tempRes = 0;
+            sign = ' ';
+            insertSubResult(subCalc);
+
+            for (String s : subCalc) {
+                sign = solve(sign, s);
+            }
+            subCalc.clear();
+            subCalc.add(tempRes + "");
+        }
+        result = tempRes;
+    }
+
+    /**
+     * Decides, weather a character is an operation sign or a number. Then it will hand them to {@link Operations#pickOperation}
+     * where it is decided what will happen.
+     *
+     * @param sign
+     * @param character
+     */
+    private char solve(char sign, String character) {
+        if (!character.equals("(") && !character.equals(")")) {
+            if (SIGNS.contains(character + "")) {
+                sign = character.charAt(0);
+            } else {
+                pickOperation(Double.parseDouble(character), sign);
+            }
+        }
+        return sign;
+    }
+
+    /**
+     * Finds the Result of the sub-calculation in subCalc at the given index and inserts it into the calculation.
+     *
+     * @param subCalc
+     */
+    private void insertSubResult(ArrayList<String> subCalc) {
+        for (int j = 0; j < subCalc.size(); j++) {
+            if (subCalc.get(j).contains("?")) {
+                subCalc.set(j, calcArr.get(Integer.parseInt(subCalc.get(j).charAt(1) + "")).get(0));
+            }
+        }
     }
 
     /**

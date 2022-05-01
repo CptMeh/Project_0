@@ -1,7 +1,7 @@
 package Test;
 
 import Calculator.Operations_V1;
-import Calculator.Operations_V3;
+import Calculator.Operations;
 import org.junit.Test;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
-public class OperationsV3Tests {
+public class OperationsTests {
 
     private final boolean print = true;
 
@@ -23,23 +23,27 @@ public class OperationsV3Tests {
     }
 
     @Test
-    public void testCheckCharacters() {
+    public void testParseAndEvaluate() {
         StringBuilder sb = new StringBuilder();
-        Operations_V3 o = new Operations_V3(sb);
+        Operations o = new Operations(sb);
         o.parse("3");
         o.parse("+");
         o.parse("3");
         o.evaluate();
 
-        /*
-        if (print) {
-            System.out.println("CalcStr: " + o.getCalc());
-            System.out.print("CalcArr: ");
-            for (StringBuilder s : o.getCalcArr()) {
-                System.out.print(s);
-            }
-            System.out.print("\n");
-        }*/
+        assertEquals(6, o.getResult());
+    }
+
+    @Test
+    public void testParseAndEvaluateMultiDigitNumbers() {
+        StringBuilder sb = new StringBuilder();
+        Operations o = new Operations(sb);
+        o.parse("3");
+        o.parse("+");
+        o.parse("33");
+        o.evaluate();
+
+        assertEquals(36, o.getResult());
     }
 
     @Test
@@ -47,7 +51,7 @@ public class OperationsV3Tests {
         StringBuilder q = new StringBuilder();
         q.append("3+3");
 
-        Operations_V3 op = new Operations_V3(q);
+        Operations op = new Operations(q);
         op.evaluate();
         assertEquals(6, op.getResult());
     }
@@ -56,7 +60,7 @@ public class OperationsV3Tests {
     public void testEvaluateAddWithOneBracket() {
         StringBuilder q = new StringBuilder("3+(3+3)");
 
-        Operations_V3 op = new Operations_V3(q);
+        Operations op = new Operations(q);
         op.evaluate();
         assertEquals(9, op.getResult());
     }
@@ -65,7 +69,7 @@ public class OperationsV3Tests {
     public void testEvaluateAddWithMultipleBrackets() {
         StringBuilder q = new StringBuilder("3+(3+(3+3))");
 
-        Operations_V3 op = new Operations_V3(q);
+        Operations op = new Operations(q);
         op.evaluate();
         assertEquals(12, op.getResult());
     }
@@ -74,7 +78,7 @@ public class OperationsV3Tests {
     public void testEvaluateAddAndMultWithMultipleBrackets() {
         StringBuilder q = new StringBuilder("3+(3*(3+3))");
 
-        Operations_V3 op = new Operations_V3(q);
+        Operations op = new Operations(q);
         op.evaluate();
         assertEquals(21, op.getResult());
     }
@@ -90,7 +94,7 @@ public class OperationsV3Tests {
         expected.add("12.34");
         expected.add("+");
 
-        Operations_V3 op = new Operations_V3();
+        Operations op = new Operations();
 
         split = op.splitCalc(q);
 

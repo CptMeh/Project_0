@@ -6,9 +6,7 @@ import java.util.ArrayList;
 
 
 /**
- * Responsible for all addition, subtraction, multiplication, and division operations.
- * It saves the result of the last executed operation.
- *
+ * First attempt of {@link Operations}
  * TODO:
  */
 public class Operations_V1 {
