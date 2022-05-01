@@ -6,14 +6,16 @@ import java.awt.*;
 import java.io.PrintStream;
 
 public class ButtonGrid extends JPanel {
-    private final JButton[][] buttonArray = new JButton[5][3];
+    private static final int COLS = 4;
+    private static final int ROWS = 5;
+    private final JButton[][] buttonArray = new JButton[ROWS][COLS]; // COLS: | ; ROWS : _
     private final Operations op;
     private final PrintStream output;
 
     public ButtonGrid(Operations op, PrintStream output) {
         this.output = output;
         this.op = op;
-        setLayout(new GridLayout(5, 3));
+        setLayout(new GridLayout(ROWS, COLS));
         setSize(400, 400);
         setUpButtons();
     }
@@ -21,27 +23,62 @@ public class ButtonGrid extends JPanel {
     private void setUpButtons() {
         int number = 1;
 
-        operationButtons();
-        numberButtons(number);
+        buttonArray[0][0] = setUpClearButton();
+        buttonArray[0][1] = new Button("(", op, output);
+        buttonArray[0][2] = new Button(")", op, output);
+        buttonArray[0][3] = new Button("÷", op, output);
+
+        buttonArray[1][3] = new Button("*", op, output);
+        buttonArray[2][3] = new Button("-", op, output);
+        buttonArray[3][3] = new Button("+", op, output);
+        buttonArray[4][3] = new Button("=", op, output);
+
+        buttonArray[4][0] = new Button(".", op, output);
+        buttonArray[4][1] = new Button("0", op, output);
+        buttonArray[4][2] = new Button("", op, output);
+
+        buttonArray[1][0] = new Button("1", op, output);
+        buttonArray[1][1] = new Button("2", op, output);
+        buttonArray[1][2] = new Button("3", op, output);
+
+        buttonArray[2][0] = new Button("4", op, output);
+        buttonArray[2][1] = new Button("5", op, output);
+        buttonArray[2][2] = new Button("6", op, output);
+
+        buttonArray[3][0] = new Button("7", op, output);
+        buttonArray[3][1] = new Button("8", op, output);
+        buttonArray[3][2] = new Button("9", op, output);
+
+        buttonArray[0][3].setBackground(Color.DARK_GRAY);
+        buttonArray[0][1].setBackground(Color.DARK_GRAY);
+        buttonArray[0][2].setBackground(Color.DARK_GRAY);
+
+        buttonArray[1][3].setBackground(Color.DARK_GRAY);
+        buttonArray[2][3].setBackground(Color.DARK_GRAY);
+        buttonArray[3][3].setBackground(Color.DARK_GRAY);
+
+        buttonArray[4][0].setBackground(Color.DARK_GRAY);
+        buttonArray[4][2].setBackground(Color.DARK_GRAY);
+
+        addButtons();
     }
 
-    private void operationButtons() {
-        buttonArray[0][0] = new Button("/", op, output);
-        buttonArray[1][0] = new Button("*", op, output);
-        buttonArray[2][0] = new Button("+", op, output);
 
-        buttonArray[2][2] = new Button(".", op, output);
-        buttonArray[3][2] = new Button("0", op, output);
-        buttonArray[4][2] = new Button("=", op, output);
+    /**
+     * Sets up the clear button which clears the calculation when pressed.
+     */
+    private JButton setUpClearButton() {
+        JButton clear = new JButton("CLEAR");
+        clear.setPreferredSize(new Dimension(75, 40));
+        clear.setBackground(Color.red);
+        clear.addActionListener(e -> op.hardClear());
+
+        return clear;
     }
 
-    private void numberButtons(int number) {
-        for (int j = 0; j < 3; j++){
-            for (int i = 0; i < 5; i++) {
-                if (buttonArray[i][j] == null) {
-                    buttonArray[i][j] = new Button("" + number, op, output);
-                    number++;
-                }
+    private void addButtons() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++){
                 add(buttonArray[i][j]);
             }
         }
@@ -55,9 +92,10 @@ public class ButtonGrid extends JPanel {
             super(symbol);
             this.output = output;
             setPreferredSize(new Dimension(60, 60));
-            setBackground(Color.GRAY);
-            setBorder(BorderFactory.createLineBorder(Color.black));
+            setBackground(Color.BLACK);
+            setBorder(BorderFactory.createLineBorder(Color.GRAY));
             setVisible(true);
+            setForeground(Color.WHITE);
 
             this.symbol = symbol;
             this.op = op;

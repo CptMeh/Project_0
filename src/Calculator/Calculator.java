@@ -14,7 +14,7 @@ public class Calculator extends JFrame {
 
     public static void main(String[] args) {
         var textArea = new JTextArea(3, 25);
-        var c = new Calculator(textArea, new PrintStream(new TextOutputStream(textArea)));
+        new Calculator(textArea, new PrintStream(new TextOutputStream(textArea)));
     }
 
     public Calculator(JTextArea textArea, PrintStream output) {
@@ -28,7 +28,7 @@ public class Calculator extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         add(buttonGrid, "South");
-        setSize(350, 400);
+        setSize(350, 385);
     }
 
     /**
@@ -37,24 +37,10 @@ public class Calculator extends JFrame {
      */
     private void setUp(JTextArea textArea) {
         var panel = new JPanel();
-        var clear = new JButton("CLEAR");
 
-        setUpClearButton(clear);
         setUpTextArea(textArea);
-
-        //panel.add(clear, "West");
-        panel.add(textArea, "East");
-
-        add(panel,"North");
-    }
-
-    /**
-     * Sets up the clear button which clears the calculation when prressed.
-     */
-    private void setUpClearButton(JButton clear) {
-        clear.setPreferredSize(new Dimension(75, 40));
-        clear.setBackground(Color.GRAY);
-        clear.addActionListener(e -> op.hardClear());
+        panel.add(textArea);
+        add(textArea,"North");
     }
 
     /**
@@ -63,6 +49,7 @@ public class Calculator extends JFrame {
     private void setUpTextArea(JTextArea textArea) {
         textArea.setSize(200, 50);
         textArea.setLayout(new BorderLayout());
+        textArea.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         textArea.setEditable(false);
     }
 

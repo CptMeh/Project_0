@@ -114,7 +114,6 @@ public class Operations {
      */
     public ArrayList<String> splitCalc(StringBuilder calcToSplit) {
         ArrayList<String> split = new ArrayList<>();
-        StringBuilder floatNum;
         int counter = 0;
 
         counter = splitUpAndCountPoints(split, calcToSplit, counter);
