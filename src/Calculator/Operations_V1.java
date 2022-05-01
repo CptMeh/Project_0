@@ -11,14 +11,14 @@ import java.util.ArrayList;
  *
  * TODO:
  */
-public class Operations {
+public class Operations_V1 {
     private double result;
     private double tempRes;
     private boolean punctuated;
     private JTextArea textArea;
     private ArrayList<String> calc; //the complete calculation
 
-    public Operations(JTextArea textArea) {
+    public Operations_V1(JTextArea textArea) {
         this.textArea = textArea;
         calc = new ArrayList<>();
     }
@@ -26,7 +26,7 @@ public class Operations {
     /**
      * For testing.
      */
-    public Operations(ArrayList<String> calc) {
+    public Operations_V1(ArrayList<String> calc) {
         this.calc = calc;
     }
 
@@ -45,7 +45,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#parse}.
+     * Helper for {@link Operations_V1#parse}.
      * Sets the first variable in the calculation to the result from the last calculation.
      */
     private void setLastResultAsFirstVariable(String nextStep) {
@@ -59,7 +59,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#parse}.
+     * Helper for {@link Operations_V1#parse}.
      * - If the next calculation is a mult / div, it sets the variables involved in the mult / div into
      *   brackets and returns true.
      * - Else it returns false.
@@ -79,7 +79,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#setBracketsForMult}.
+     * Helper for {@link Operations_V1#setBracketsForMult}.
      * Sets a "{" at the beginning of a mult / div.
      */
     private void setFirstBracket() {
@@ -91,7 +91,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#parse}.
+     * Helper for {@link Operations_V1#parse}.
      * - If the last calculation was completed and the user wants to mult / div with the result,
      *   it sets result as the first variable of the calc and then adds the rest. Afterwars it
      *   returns true.
@@ -108,7 +108,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#parse}.
+     * Helper for {@link Operations_V1#parse}.
      * If a "-" sign was parsed, the next number will be made negative and the "-" sign in the calc
      * will be replaced with a "+".
      */
@@ -125,7 +125,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#parse}.
+     * Helper for {@link Operations_V1#parse}.
      * Appends the value of the nextStep String to the last part of calc, but only if the last part
      * was either an integer, or a ".".
      *
@@ -157,7 +157,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#appendNumber}
+     * Helper for {@link Operations_V1#appendNumber}
      */
     private boolean punctuated(String nextStep, String bracket) {
         checkForPunctuation(nextStep);
@@ -170,7 +170,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#appendNumber}
+     * Helper for {@link Operations_V1#appendNumber}
      */
     private boolean append(String nextStep, String bracket) {
         try {
@@ -185,7 +185,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#punctuated}
+     * Helper for {@link Operations_V1#punctuated}
      */
     private void checkForPunctuation(String nextStep) {
         if (!nextStep.equals(".")) {
@@ -200,7 +200,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#appendNumber}.
+     * Helper for {@link Operations_V1#appendNumber}.
      * Checks if the last part of calc is a ")", removes it from calc and sets and returns the
      * String bracket = ")".
      */
@@ -216,7 +216,7 @@ public class Operations {
         return bracket;
     }
     /**
-     * Helper for {@link Operations#appendNumber}.
+     * Helper for {@link Operations_V1#appendNumber}.
      * Add the nextStep String to the calc. If the previous part of the calc was a "}", the String
      * bracket will be added afterwards aswell.
      */
@@ -243,13 +243,13 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#evaluate}
+     * Helper for {@link Operations_V1#evaluate}
      * Calculates all the multiplications / divisions in the multDiv ArrayList.
      * 1. Calls calculate.
      * 2. Sets the first value in the String[][] in multDiv to the tempRes.
      * 3. Sets tempRes = 0.
      *
-     * Step 2 is necessary for {@link Operations#replaceResult}.
+     * Step 2 is necessary for {@link Operations_V1#replaceResult}.
      */
     private void multiplications(ArrayList<String[][]> multDiv) {
         char symbol = ' ';
@@ -266,7 +266,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#evaluate}.
+     * Helper for {@link Operations_V1#evaluate}.
      * Replaces the calculation in calc with its result from multDiv.
      * 1. Replaces the calculation.
      * 2. Deletes the Brackets.
@@ -288,7 +288,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#evaluate}.
+     * Helper for {@link Operations_V1#evaluate}.
      * 1. Calculates all additions (/subtractions) in the calc.
      * 2. Clears calc for next uses.
      */
@@ -302,9 +302,9 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#multiplications} and {@link Operations#additions}.
+     * Helper for {@link Operations_V1#multiplications} and {@link Operations_V1#additions}.
      * 1. Checks if the String s contains a Number.
-     * 2a. If it does, it will be sent to {@link Operations#pickOperation}.
+     * 2a. If it does, it will be sent to {@link Operations_V1#pickOperation}.
      * 2b. if not it contains the Symbol for the calculation and will be saved as such.
      *
      * @param multDiv   boolean deciding if this is a mult/div or a add/sub
@@ -358,7 +358,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#getMultDiv}.
+     * Helper for {@link Operations_V1#getMultDiv}.
      * Gathers all the multiplications and divisions in the multDiv ArrayList
      */
     private int getMultDivGroups(ArrayList<String[][]> multDiv, ArrayList<String> rest, int i, int j) {
@@ -372,7 +372,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#getMultDivGroups}.
+     * Helper for {@link Operations_V1#getMultDivGroups}.
      * Calculates how long the multDiv group is.
      * A group with one multiplication / division is 3 long. One with more than one is 3 + offset long.
      *
@@ -393,7 +393,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#getMultDivGroups}.
+     * Helper for {@link Operations_V1#getMultDivGroups}.
      * 1. Selects the Strings Starting from Index i.
      * 2. Then removes the brackets,  which surrounded the strings at first.
      *
@@ -415,7 +415,7 @@ public class Operations {
     }
 
     /**
-     * Helper for {@link Operations#evaluate}
+     * Helper for {@link Operations_V1#evaluate}
      * Decides which operation will be executed.
      *
      * @param num       Number to be added/subtracted to the result or by which the result will

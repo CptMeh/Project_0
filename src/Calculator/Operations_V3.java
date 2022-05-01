@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 /**
- * New Version of {@link Operations}
+ * New Version of {@link Operations_V1}
  *
  * TODO:
  *  - Sub
@@ -337,7 +337,7 @@ public class Operations_V3 {
     }
 
     /**
-     * Helper for {@link Operations#evaluate}
+     * Helper for {@link Operations_V1#evaluate}
      * Decides which operation will be executed.
      *
      * @param num       Number to be added/subtracted to the result or by which the

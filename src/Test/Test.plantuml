@@ -3,7 +3,7 @@
 title __TEST's Class Diagram__\n
 
   namespace Test {
-    class Test.OperationsTests {
+    class Test.OperationsTestsV1 {
         + test3Add3Add3EvalMult9()
         + test3Add3Add3Mult9()
         + test3Add3Mult3Mult9()

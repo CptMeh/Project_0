@@ -1,6 +1,6 @@
 package Test;
 
-import Calculator.Operations;
+import Calculator.Operations_V1;
 import org.junit.Test;
 
 import javax.swing.*;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class OperationsTests {
+public class OperationsTestsV1 {
 
     @Test
     public void testEvaluateAdd() {
@@ -19,7 +19,7 @@ public class OperationsTests {
         q.add("+");
         q.add("3.0");
 
-        Operations op = new Operations(q);
+        Operations_V1 op = new Operations_V1(q);
         op.evaluate();
         assertEquals(6, op.getResult());
     }
@@ -31,7 +31,7 @@ public class OperationsTests {
         q.add("+");
         q.add("-2.0");
 
-        Operations op = new Operations(q);
+        Operations_V1 op = new Operations_V1(q);
         op.evaluate();
         assertEquals(1, op.getResult());
     }
@@ -45,7 +45,7 @@ public class OperationsTests {
         q.add("2.0");
         q.add("}");
 
-        Operations op = new Operations(q);
+        Operations_V1 op = new Operations_V1(q);
         op.evaluate();
         assertEquals(6.0, op.getResult());
     }
@@ -59,7 +59,7 @@ public class OperationsTests {
         q.add("2.0");
         q.add("}");
 
-        Operations op = new Operations(q);
+        Operations_V1 op = new Operations_V1(q);
         op.evaluate();
         assertEquals(2.0, op.getResult());
     }
@@ -67,7 +67,7 @@ public class OperationsTests {
     @Test
     public void testWriteCalc() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("2.0");
         op.parse("+");
         op.parse("2.0");
@@ -80,7 +80,7 @@ public class OperationsTests {
     @Test
     public void test3Add3Add3Mult9() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3.0");
         op.parse("+");
         op.parse("3.0");
@@ -97,7 +97,7 @@ public class OperationsTests {
     @Test
     public void test3Add3Mult3Mult9() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3.0");
         op.parse("+");
         op.parse("3.0");
@@ -114,7 +114,7 @@ public class OperationsTests {
     @Test
     public void test3Add3Add3EvalMult9() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3.0");
         op.parse("+");
         op.parse("3.0");
@@ -132,7 +132,7 @@ public class OperationsTests {
     @Test
     public void testAddWithAppendAndFloat() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3");
         op.parse("3");
         op.parse("+");
@@ -149,7 +149,7 @@ public class OperationsTests {
     @Test
     public void testThatFuckingBooleanMultDivInPickOperation() { //fuck yeeea, I was just stoopiiiiif :D
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.setResult(9.0);
         op.parse("*");
         op.parse("9.0");
@@ -161,7 +161,7 @@ public class OperationsTests {
     @Test
     public void testDifferentMultGroups() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3");
         op.parse("*");
         op.parse("3");
@@ -178,7 +178,7 @@ public class OperationsTests {
     @Test
     public void testDifferentMultGroupsWithFloat() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("3");
         op.parse("*");
         op.parse("3");
@@ -195,7 +195,7 @@ public class OperationsTests {
     @Test
     public void testSpecific() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("2");
         op.parse("2");
         op.parse("2");
@@ -212,7 +212,7 @@ public class OperationsTests {
     @Test
     public void testPunctuation() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         op.parse("2");
         op.parse(".");
         op.parse("1");

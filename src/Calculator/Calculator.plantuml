@@ -30,7 +30,7 @@ title __CALCULATOR's Class Diagram__\n
   
 
   namespace Calculator {
-    class Calculator.Operations {
+    class Calculator.Operations_V1 {
         - calc : ArrayList<String>
         - punctuated : boolean
         - result : double
@@ -83,11 +83,11 @@ title __CALCULATOR's Class Diagram__\n
   
 
   Calculator.Button -up-|> javax.swing.JButton
-  Calculator.Button o-- Calculator.Operations : op
+  Calculator.Button o-- Calculator.Operations_V1 : op
   Calculator.ButtonGrid -up-|> javax.swing.JPanel
-  Calculator.ButtonGrid o-- Calculator.Operations : op
+  Calculator.ButtonGrid o-- Calculator.Operations_V1 : op
   Calculator.Calculator -up-|> javax.swing.JFrame
-  Calculator.Calculator o-- Calculator.Operations : op
+  Calculator.Calculator o-- Calculator.Operations_V1 : op
   Calculator.TextOutputStream -up-|> java.io.OutputStream
 
 

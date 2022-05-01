@@ -7,10 +7,10 @@ import java.io.PrintStream;
 
 public class ButtonGrid extends JPanel {
     private final JButton[][] buttonArray = new JButton[5][3];
-    private final Operations op;
+    private final Operations_V3 op;
     private final PrintStream output;
 
-    public ButtonGrid(Operations op, PrintStream output) {
+    public ButtonGrid(Operations_V3 op, PrintStream output) {
         this.output = output;
         this.op = op;
         setLayout(new GridLayout(5, 3));
@@ -48,10 +48,10 @@ public class ButtonGrid extends JPanel {
     }
     static class Button extends JButton { //I guess you could make a number button and operation button, but that would take some restructuring...
         private final String symbol;
-        private final Operations op;
+        private final Operations_V3 op;
         private final PrintStream output;
 
-        public Button(String symbol, Operations op, PrintStream output) {
+        public Button(String symbol, Operations_V3 op, PrintStream output) {
             super(symbol);
             this.output = output;
             setPreferredSize(new Dimension(60, 60));

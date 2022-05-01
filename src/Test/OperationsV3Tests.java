@@ -1,6 +1,6 @@
 package Test;
 
-import Calculator.Operations;
+import Calculator.Operations_V1;
 import Calculator.Operations_V3;
 import org.junit.Test;
 
@@ -16,9 +16,9 @@ public class OperationsV3Tests {
 
     private final boolean print = true;
 
-    private Operations createNewOperation() {
+    private Operations_V1 createNewOperation() {
         JTextArea fake = mock(JTextArea.class);
-        Operations op = new Operations(fake);
+        Operations_V1 op = new Operations_V1(fake);
         return op;
     }
 
