@@ -57,6 +57,16 @@ public class OperationsTests {
     }
 
     @Test
+    public void testPunktVorStrich() {
+        StringBuilder q = new StringBuilder();
+        q.append("3+3*3");
+
+        Operations op = new Operations(q);
+        op.evaluate();
+        assertEquals(12, op.getResult());
+    }
+
+    @Test
     public void testEvaluateAddWithOneBracket() {
         StringBuilder q = new StringBuilder("3+(3+3)");
 

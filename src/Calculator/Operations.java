@@ -78,6 +78,31 @@ public class Operations {
     private void sortCharacters() throws InvalidInputException {
         ArrayList<Integer[]> bracketIndices;
         int i = 0;
+        /*
+        int offset = 0;
+        int right = 0;
+        int left = 0;
+
+
+        for (int j = 0; j < calc.length() + offset; j++) {
+            if (calc.charAt(j) == '*' || calc.charAt(j) == '/') {
+                for (int r = 0; r < calc.length(); r++) {
+                    if (SIGNS.contains(calc.charAt(r) + "")  && calc.charAt(r) != '.') {
+                        calc.insert(r, ")");
+                        j++;
+                    }
+                }
+                for (int l = j-1; l >= 0; l--) {
+                    if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
+                        calc.insert(l, "(");
+                        j++;
+                    }
+                }
+                offset++;
+            }
+        }
+
+        System.out.println(calc);*/
 
         if (calc.toString().contains("(")) {
             bracketIndices = findBrackets();
@@ -87,9 +112,9 @@ public class Operations {
                 i++;
             }
             calcArr.add(splitCalc(temp));
-        } else if (calc.toString().contains("*") || calc.toString().contains("/")) {
-
         }
+
+
         calcArr.add(splitCalc(temp));
     }
 
