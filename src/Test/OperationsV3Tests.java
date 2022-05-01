@@ -9,9 +9,10 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
-public class OperationsV2Tests {
+public class OperationsV3Tests {
 
     private final boolean print = true;
 
@@ -44,9 +45,7 @@ public class OperationsV2Tests {
     @Test
     public void testEvaluateAdd() {
         StringBuilder q = new StringBuilder();
-        q.append("3");
-        q.append("+");
-        q.append("3");
+        q.append("3+3");
 
         Operations_V3 op = new Operations_V3(q);
         op.evaluate();
@@ -55,14 +54,7 @@ public class OperationsV2Tests {
 
     @Test
     public void testEvaluateAddWithOneBracket() {
-        StringBuilder q = new StringBuilder();
-        q.append("3");
-        q.append("+");
-        q.append("(");
-        q.append("3");
-        q.append("+");
-        q.append("3");
-        q.append(")");
+        StringBuilder q = new StringBuilder("3+(3+3)");
 
         Operations_V3 op = new Operations_V3(q);
         op.evaluate();
@@ -103,6 +95,12 @@ public class OperationsV2Tests {
         split = op.splitCalc(q);
 
         assertEquals(expected, split);
+    }
+
+    @Test
+    public void testAssertions() {
+        int i = 1;
+        assertThrows(AssertionError.class, () -> {assert (i != 1);});
     }
 }
 

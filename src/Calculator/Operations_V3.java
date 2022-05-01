@@ -62,61 +62,64 @@ public class Operations_V3 {
             sortCharacters();
         } catch (InvalidInputException e) {
             calcArr.clear();
-            //textArea.setText("Invalid Input: " + calc);
+            if (textArea != null) {
+                textArea.setText("Invalid Input: " + calc);
+            }
         }
         calculate();
         temp = new StringBuilder();
     }
 
     /**
-     * Calculates the complete calculation by first evaluating all sub-calculations and purring the
+     * Calculates the complete calculation by first solving all sub-calculations and putting the
      * Results into the overall calculation.
      */
     private void calculate() {
         ArrayList<String> subCalc;
-        ArrayList<String> mainCalc;
-        char sign = ' ';
-        int counter = 0;
-        String c;
+        char sign;
 
         for (int i = 0; i < calcArr.size(); i++) {
+            tempRes = 0;
+            sign = ' ';
             subCalc = calcArr.get(i);
-
-            insertSubResult(subCalc, i);
+            insertSubResult(subCalc);
 
             for (int j = 0; j < subCalc.size(); j++) {
-                c = subCalc.get(j);
-
-                if (c.contains("?")) {
-                    subCalc.set(j, tempRes + "");
-                    subCalc.remove(j+1);
-                }
-
-                if (!c.equals("(") && !c.equals(")")) {
-                    if (SIGNS.contains(c + "")) {
-                        sign = c.charAt(0);
-                    } else {
-                        pickOperation(Double.parseDouble(c), sign);
-                    }
-                }
+                sign = solve(sign, subCalc.get(j));
             }
+            calcArr.get(i).clear();
+            calcArr.get(i).add(tempRes + "");
         }
-
-        mainCalc = calcArr.get(calcArr.size() - 1);
-
-        for (int i = 0; i < mainCalc.size(); i++) {
-            if (mainCalc.get(i).contains("?")) {
-                mainCalc.set(i, calcArr.get(Integer.parseInt(mainCalc.get(i + 1))).toString());
-                mainCalc.remove(i + 1);
-            }
-        }
+        result = tempRes;
     }
 
-    private void insertSubResult(ArrayList<String> subCalc, int index) {
-        for (int j = 0; j < subCalc.size(); j++) {
+    /**
+     * Decides, weather a character is an operation sign or a number. Then it will hand them to {@link Operations_V3#pickOperation}
+     * where it is decided what will happen.
+     *
+     * @param sign
+     * @param character
+     */
+    private char solve(char sign, String character) {
+        if (!character.equals("(") && !character.equals(")")) {
+            if (SIGNS.contains(character + "")) {
+                sign = character.charAt(0);
+            } else {
+                pickOperation(Double.parseDouble(character), sign);
+            }
+        }
+        return sign;
+    }
 
+    /**
+     * Finds the Result of the sub-calculation in subCalc at the given index and inserts it into the calculation.
+     *
+     * @param subCalc
+     */
+    private void insertSubResult(ArrayList<String> subCalc) {
+        for (int j = 0; j < subCalc.size(); j++) {
             if (subCalc.get(j).contains("?")) {
-                calcArr.set(index, calcArr.get(subCalc.get(subCalc.indexOf("?")).charAt(1)));
+                subCalc.set(j, calcArr.get(Integer.parseInt(subCalc.get(j).charAt(1) + "")).get(0));
             }
         }
     }
@@ -203,7 +206,7 @@ public class Operations_V3 {
     /**
      * Adds each character from calc to the split ArrayList.
      * - If the character is a '.', the counter will be incremented.
-     * - If the character is a '?', the next character will be added aswell.
+     * - If the character is a '?', the next character will be added as well.
      *
      * @param split
      * @param calcToSplit
@@ -212,7 +215,7 @@ public class Operations_V3 {
     private int splitUpAndCountPoints(ArrayList<String> split, StringBuilder calcToSplit, int counter) {
         for (int i = 0; i < calcToSplit.length(); i++) {
             if (calcToSplit.charAt(i) == '?') {
-                split.add(calcToSplit.charAt(i) + calcToSplit.charAt(i + 1) + "");
+                split.add(calcToSplit.charAt(i) + "" + calcToSplit.charAt(i + 1));
                 i++;
             } else {
                 split.add(calcToSplit.charAt(i) + "");
@@ -232,7 +235,7 @@ public class Operations_V3 {
      * @param index     index of the character in split
      */
     private boolean findAllDigits(ArrayList<String> split, int index, StringBuilder num) {
-        if(!SIGNS.contains(split.get(index))) {
+        if(!SIGNS.contains(split.get(index)) && !split.get(index + 1).equals("?")) {
             num.append(split.remove(index));
             return false;
         } else {
@@ -241,7 +244,7 @@ public class Operations_V3 {
     }
 
     /**
-     * ({@link Operations_V3#evaluate}) Goes through the calc-StringBuilder and decides if a character is a number or
+     * ({@link Operations_V3#evaluate}) Goes through the calc StringBuilder and decides if a character is a number or
      * an operation. If the Input is invalid, the process is stopped.
      */
     private void sortCharacters() throws InvalidInputException {
@@ -250,23 +253,21 @@ public class Operations_V3 {
 
         if (calc.toString().contains("(")) {
             bracketIndices = findBrackets();
-
             while (bracketIndices.size() != 0) {
                 creatSubCalculations(bracketIndices.get(0)[0], bracketIndices.get(0)[1], i);
                 bracketIndices = findBrackets();
                 i++;
             }
-
+            calcArr.add(splitCalc(temp));
         } else if (calc.toString().contains("*") || calc.toString().contains("/")) {
 
         }
-
         calcArr.add(splitCalc(temp));
     }
 
     /**
-     * ({@link Operations_V3#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all involved elements
-     * in the calculation, putting them in a separate StringBuilder, and adding them into calcArr.
+     * ({@link Operations_V3#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all
+     * involved elements in the calculation, putting them in a separate ArrayList, and adding them into calcArr.
      * Then it replaces the extracted sub-calculation in the main calculation with "?i", wherein i is
      * the index of the sub-calculation.
      *
@@ -275,12 +276,7 @@ public class Operations_V3 {
      * @param groupIndex
      */
     private void creatSubCalculations(int start, int end, int groupIndex) {
-        ArrayList<String> subcalc = new ArrayList<>();
-
-        for (int i = start; i <= end; i++) {
-            subcalc.add(temp.charAt(i) + "");
-        }
-        calcArr.add(subcalc);
+        calcArr.add(splitCalc(new StringBuilder(temp.substring(start + 1, end))));
         temp.replace(start, end+1, "?" + groupIndex);
     }
 
@@ -294,7 +290,21 @@ public class Operations_V3 {
         ArrayList<Integer> endIndices = new ArrayList<>();
         ArrayList<Integer[]> bracketGroups = new ArrayList<>();
 
-        //refactor into findIndices()
+        findIndices(startIndices, endIndices);
+        sortBrackets(startIndices, endIndices, bracketGroups);
+
+        return bracketGroups;
+    }
+
+    private void sortBrackets(ArrayList<Integer> startIndices, ArrayList<Integer> endIndices, ArrayList<Integer[]> bracketGroups) throws InvalidInputException {
+        if (startIndices.size() == endIndices.size()) {
+            pairUpBrackets(bracketGroups, startIndices, endIndices);
+        } else {
+            throw new InvalidInputException();
+        }
+    }
+
+    private void findIndices(ArrayList<Integer> startIndices, ArrayList<Integer> endIndices) {
         for (int i = 0; i < temp.length(); i++) {
             if (temp.charAt(i) == '(') {
                 startIndices.add(i);
@@ -302,15 +312,6 @@ public class Operations_V3 {
                 endIndices.add(i);
             }
         }
-
-        //refactor into sortBrackets():
-        if (startIndices.size() == endIndices.size()) {
-            pairUpBrackets(bracketGroups, startIndices, endIndices);
-        } else {
-            throw new InvalidInputException();
-        }
-
-        return bracketGroups;
     }
 
     /**
@@ -346,7 +347,7 @@ public class Operations_V3 {
     private void pickOperation(double num, char sign) {
         switch (sign) {
             case ' ' -> {
-                result = num;
+                //result = num;
                 tempRes = num;
             }
             case '*' -> mult(num);
@@ -369,30 +370,31 @@ public class Operations_V3 {
      */
     public void hardClear() {
         result = 0;
+        tempRes = 0;
         calc = new StringBuilder();
         calcArr.clear();
         softClear();
     }
 
     public void add(double addNum) {
-        result += addNum;
+        //result += addNum;
         tempRes += addNum;
     }
 
     public void sub(double subNum) {
-        result -= subNum;
+        //result -= subNum;
         tempRes -= subNum;
     }
 
     public void mult(double multNum){
-        result *= multNum;
+        //result *= multNum;
         tempRes *= multNum;
     }
 
     public void div(double divNum){
         try {
             assert divNum != 0;
-            result /= divNum;
+            //result /= divNum;
             tempRes /= divNum;
         } catch (AssertionError e) {
             hardClear();
