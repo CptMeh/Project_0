@@ -76,6 +76,24 @@ public class OperationsTests {
     }
 
     @Test
+    public void testEvaluateAddWithTwoIndividualBracket() {
+        StringBuilder q = new StringBuilder("(3+3)*(3+3)");
+
+        Operations op = new Operations(q);
+        op.evaluate();
+        assertEquals(36, op.getResult());
+    }
+
+    @Test
+    public void testEvaluateAddWithBothBracketTypes() {
+        StringBuilder q = new StringBuilder("((3+3)*(3+3))*(3+3)");
+
+        Operations op = new Operations(q);
+        op.evaluate();
+        assertEquals(216, op.getResult());
+    }
+
+    @Test
     public void testEvaluateAddWithMultipleBrackets() {
         StringBuilder q = new StringBuilder("3+(3+(3+3))");
 

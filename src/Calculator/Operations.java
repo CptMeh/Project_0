@@ -76,25 +76,43 @@ public class Operations {
      * an operation. If the Input is invalid, the process is stopped.
      */
     private void sortCharacters() throws InvalidInputException {
-        ArrayList<Integer[]> bracketIndices;
-        int i = 0;
-
         encaseMultAndDivInBrackets();
+        divideIntoSubCalculations();
 
-        System.out.println(calc);
+        calcArr.add(splitCalc(temp));
+    }
+
+    private void divideIntoSubCalculations() {
+        ArrayList<Integer[]> bracketIndices = new ArrayList<>();
+        int groupIndex = 0;
+        int size;
 
         if (calc.toString().contains("(")) {
-            bracketIndices = findBrackets();
-            while (bracketIndices.size() != 0) {
-                creatSubCalculations(bracketIndices.get(0)[0], bracketIndices.get(0)[1], i);
-                bracketIndices = findBrackets();
-                i++;
+            findBracketsGroups(bracketIndices);
+            size = bracketIndices.size();
+
+            for (int i = size - 1; i >= 0; i--){
+                creatSubCalculations(bracketIndices.get(i)[0], bracketIndices.get(i)[1], groupIndex);
+                findBracketsGroups(bracketIndices); //TODO: For some reason the bracketIndex isn't updated
+                groupIndex++;
             }
             calcArr.add(splitCalc(temp));
         }
+    }
 
-
-        calcArr.add(splitCalc(temp));
+    /**
+     * ({@link Operations#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all
+     * involved elements in the calculation, putting them in a separate ArrayList, and adding them into calcArr.
+     * Then it replaces the extracted sub-calculation in the main calculation with "?i", wherein i is
+     * the index of the sub-calculation.
+     *
+     * @param start
+     * @param end
+     * @param groupIndex
+     */
+    private void creatSubCalculations(int start, int end, int groupIndex) {
+        calcArr.add(splitCalc(new StringBuilder(temp.substring(start + 1, end))));
+        temp.replace(start, end+1, "?" + groupIndex);
     }
 
     /**
@@ -116,10 +134,26 @@ public class Operations {
      * @param j     index of the '*' bzw. '/'
      */
     private void searchRight(int j) {
-        for (int r = 0; r < calc.length(); r++) {
-            if (SIGNS.contains(calc.charAt(r) + "")  && calc.charAt(r) != '.'  && calc.charAt(r) != '(' && calc.charAt(r) != ')') {
-                calc.insert(j +r+1, ")");
-                break;
+        StringBuilder rightSide = new StringBuilder();;
+        int open = 0;
+
+        if (calc.charAt(j+1) == '(') {
+            for (int i = j+1; i < calc.length(); i++) {
+                if (i < calc.length()-1 && calc.charAt(i+1) == '(') {
+                    open++;
+                } if (open == 0 && calc.charAt(i) == ')') {
+                    break;
+                }
+                rightSide.append(calc.charAt(i));
+            }
+            rightSide.append(")");
+            calc.insert(j+1 + rightSide.length(), ")");
+        } else {
+            for (int r = 0; r < calc.length(); r++) {
+                if (SIGNS.contains(calc.charAt(r) + "") && calc.charAt(r) != '.') {
+                    calc.insert(j +r+1, ")");
+                    break;
+                }
             }
         }
     }
@@ -130,29 +164,32 @@ public class Operations {
      * @param j     index of the '*' bzw. '/'
      */
     private int searchLeft(int j) {
-        for (int l = j -1; l >= 0; l--) {
-            if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
-                calc.insert(j -l, "(");
-                j++;
-                break;
+        StringBuilder leftSide = new StringBuilder();;
+        int closed = 0;
+
+
+        if (calc.charAt(j-1) == ')') {
+            for (int i = j-1; i >= 0; i--) {
+                if (i > 0 && calc.charAt(i-1) == ')') {
+                    closed++;
+                } if (closed == 0 && calc.charAt(i) == '(') {
+                    break;
+                }
+                leftSide.append(calc.charAt(i));
+            }
+            leftSide.append("(");
+            calc.insert(j - 1 - leftSide.length(), "(");
+        } else {
+            for (int l = j -1; l >= 0; l--) {
+                if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
+                    calc.insert(j -l, "(");
+                    j++;
+                    break;
+                }
             }
         }
+        System.out.println(calc);
         return j;
-    }
-
-    /**
-     * ({@link Operations#sortCharacters}) Creates sub-calculations for the individual bracket groups by selecting all
-     * involved elements in the calculation, putting them in a separate ArrayList, and adding them into calcArr.
-     * Then it replaces the extracted sub-calculation in the main calculation with "?i", wherein i is
-     * the index of the sub-calculation.
-     *
-     * @param start
-     * @param end
-     * @param groupIndex
-     */
-    private void creatSubCalculations(int start, int end, int groupIndex) {
-        calcArr.add(splitCalc(new StringBuilder(temp.substring(start + 1, end))));
-        temp.replace(start, end+1, "?" + groupIndex);
     }
 
     /**
@@ -258,55 +295,65 @@ public class Operations {
      *
      * @throws InvalidInputException if open brackets are left unclosed.
      */
-    private ArrayList<Integer[]> findBrackets() throws InvalidInputException {
+    private void findBracketsGroups(ArrayList<Integer[]> bracketGroups) {
         ArrayList<Integer> startIndices = new ArrayList<>();
-        ArrayList<Integer> endIndices = new ArrayList<>();
-        ArrayList<Integer[]> bracketGroups = new ArrayList<>();
 
-        findIndices(startIndices, endIndices);
-        sortBrackets(startIndices, endIndices, bracketGroups);
-
-        return bracketGroups;
+        findIndices(startIndices);
+        pairUpBrackets(bracketGroups, startIndices);
     }
 
-    private void sortBrackets(ArrayList<Integer> startIndices, ArrayList<Integer> endIndices, ArrayList<Integer[]> bracketGroups) throws InvalidInputException {
-        if (startIndices.size() == endIndices.size()) {
-            pairUpBrackets(bracketGroups, startIndices, endIndices);
-        } else {
-            throw new InvalidInputException();
-        }
-    }
-
-    private void findIndices(ArrayList<Integer> startIndices, ArrayList<Integer> endIndices) {
+    private void findIndices(ArrayList<Integer> startIndices) {
         for (int i = 0; i < temp.length(); i++) {
             if (temp.charAt(i) == '(') {
                 startIndices.add(i);
-            } else if (temp.charAt(i) == ')') {
-                endIndices.add(i);
             }
         }
     }
 
     /**
-     * ({@link Operations#findBrackets}) Find the individual bracket groups in the calc StringBuilder.
+     * ({@link Operations#findBracketsGroups}) Find the individual bracket groups in the calc StringBuilder.
      *
      * @param bracketGroups     ArrayList<Integer[]> to be filled with the index-pairs of the bracket groups
      * @param startIndices      ArrayList<Integer> contains all indices of '(' brackets
-     * @param endIndices        ArrayList<Integer> contains all indices of ')' brackets
+     *
      */
-    private void pairUpBrackets(ArrayList<Integer[]> bracketGroups, ArrayList<Integer> startIndices, ArrayList<Integer> endIndices) {
-        assert (startIndices.size() == endIndices.size());
-        int size = startIndices.size();
+    private void pairUpBrackets(ArrayList<Integer[]> bracketGroups, ArrayList<Integer> startIndices) {
+        ArrayList<Integer> endIndices = new ArrayList<>();
+        int open = 0;
 
-        /*if (bothBracketTypes(startIndices, endIndices)) {
-            splitUpBracketProblem(startIndices, endIndices);
-        } else if (bracketsInBrackets(startIndices, endIndices)) {*/
-        for (int i = size; i > 0; i--) {
-            bracketGroups.add(new Integer[] {startIndices.remove(i-1), endIndices.remove(0)});
-        }/*
-        } else if (bracketsNextToBrackets(startIndices, endIndices)) {
-            //custom shit
-        } */
+        //v3
+        for (Integer s : startIndices) {
+            for (int i = s; i < temp.length(); i++) {
+                if (i != s && startIndices.contains(i)) {
+                    open++;
+                } else if (open == 0 && temp.charAt(i) == ')' && !endIndices.contains(calc.charAt(i))) {
+                    bracketGroups.add(new Integer[]{s, i});
+                    endIndices.add(i);
+                    break;
+                } else if (temp.charAt(i) == ')') {
+                    open--;
+                }
+            }
+        }
+        /*
+        if (startIndices.size() != endIndices.size()) {
+            throw new InvalidInputException();
+        }*/
+        /*V2
+        for (int s = startIndices.size() - 1, i = 0; s >= 0 ; s--, i++) {
+            bracketGroups.add(new Integer[]{startIndices.get(s), 0});
+            for (int e = 0; e < endIndices.size(); e++) {
+                if (startIndices.get(s) < endIndices.get(e)) {
+                    bracketGroups.get(i)[1] = endIndices.remove(e);
+                }
+            }
+        }*/
+
+        /*V1
+        for (int i = startIndices.size(); i > 0; i--) {
+            bracketGroups.add(new Integer[]{startIndices.remove(i - 1), endIndices.remove(0)});
+        }*/
+
     }
 
     /**
@@ -371,10 +418,7 @@ public class Operations {
      */
     private void pickOperation(double num, char sign) {
         switch (sign) {
-            case ' ' -> {
-                //result = num;
-                tempRes = num;
-            }
+            case ' ' -> tempRes = num;
             case '*' -> mult(num);
             case '/' -> div(num);
             case '+' -> add(num);
