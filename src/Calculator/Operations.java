@@ -78,31 +78,10 @@ public class Operations {
     private void sortCharacters() throws InvalidInputException {
         ArrayList<Integer[]> bracketIndices;
         int i = 0;
-        /*
-        int offset = 0;
-        int right = 0;
-        int left = 0;
 
+        encaseMultAndDivInBrackets();
 
-        for (int j = 0; j < calc.length() + offset; j++) {
-            if (calc.charAt(j) == '*' || calc.charAt(j) == '/') {
-                for (int r = 0; r < calc.length(); r++) {
-                    if (SIGNS.contains(calc.charAt(r) + "")  && calc.charAt(r) != '.') {
-                        calc.insert(r, ")");
-                        j++;
-                    }
-                }
-                for (int l = j-1; l >= 0; l--) {
-                    if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
-                        calc.insert(l, "(");
-                        j++;
-                    }
-                }
-                offset++;
-            }
-        }
-
-        System.out.println(calc);*/
+        System.out.println(calc);
 
         if (calc.toString().contains("(")) {
             bracketIndices = findBrackets();
@@ -116,6 +95,49 @@ public class Operations {
 
 
         calcArr.add(splitCalc(temp));
+    }
+
+    /**
+     * Iterates through the calc StringBuilder and searches for '*' and '/'. If they are found, all parts of the
+     * calculation will be encased in brackets.
+     */
+    private void encaseMultAndDivInBrackets() {
+        for (int j = 0; j < calc.length(); j++) {
+            if (calc.charAt(j) == '*' || calc.charAt(j) == '/') {
+                searchRight(j);
+                j = searchLeft(j);
+            }
+        }
+    }
+
+    /**
+     * Finds all digits of the number left to the '*' or '/'.
+     *
+     * @param j     index of the '*' bzw. '/'
+     */
+    private void searchRight(int j) {
+        for (int r = 0; r < calc.length(); r++) {
+            if (SIGNS.contains(calc.charAt(r) + "")  && calc.charAt(r) != '.'  && calc.charAt(r) != '(' && calc.charAt(r) != ')') {
+                calc.insert(j +r+1, ")");
+                break;
+            }
+        }
+    }
+
+    /**
+     * Finds all digits of the number left to the '*' or '/'.
+     *
+     * @param j     index of the '*' bzw. '/'
+     */
+    private int searchLeft(int j) {
+        for (int l = j -1; l >= 0; l--) {
+            if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
+                calc.insert(j -l, "(");
+                j++;
+                break;
+            }
+        }
+        return j;
     }
 
     /**
