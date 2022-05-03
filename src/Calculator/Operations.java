@@ -77,6 +77,7 @@ public class Operations {
      */
     private void sortCharacters() throws InvalidInputException {
         encaseMultAndDivInBrackets();
+        temp = calc;
         divideIntoSubCalculations();
 
         calcArr.add(splitCalc(temp));
@@ -88,13 +89,14 @@ public class Operations {
         int size;
 
         if (calc.toString().contains("(")) {
-            findBracketsGroups(bracketIndices);
+            bracketIndices = findBracketsGroups();
             size = bracketIndices.size();
 
-            for (int i = size - 1; i >= 0; i--){
-                creatSubCalculations(bracketIndices.get(i)[0], bracketIndices.get(i)[1], groupIndex);
-                findBracketsGroups(bracketIndices); //TODO: For some reason the bracketIndex isn't updated
+            while (bracketIndices.size() > 0) {
+                creatSubCalculations(bracketIndices.get(0)[0], bracketIndices.get(0)[1], groupIndex);
+                bracketIndices = findBracketsGroups(); //TODO: For some reason the bracketIndex isn't updated
                 groupIndex++;
+                size--;
             }
             calcArr.add(splitCalc(temp));
         }
@@ -124,12 +126,14 @@ public class Operations {
             if (calc.charAt(j) == '*' || calc.charAt(j) == '/') {
                 searchRight(j);
                 j = searchLeft(j);
+                j++;
             }
         }
     }
 
     /**
-     * Finds all digits of the number left to the '*' or '/'.
+     * Finds all digits of the number left to the '*' or '/'. If there are brackets on either side, all the components
+     * of this bracket will be incorporated.
      *
      * @param j     index of the '*' bzw. '/'
      */
@@ -138,22 +142,38 @@ public class Operations {
         int open = 0;
 
         if (calc.charAt(j+1) == '(') {
-            for (int i = j+1; i < calc.length(); i++) {
-                if (i < calc.length()-1 && calc.charAt(i+1) == '(') {
-                    open++;
-                } if (open == 0 && calc.charAt(i) == ')') {
-                    break;
-                }
-                rightSide.append(calc.charAt(i));
-            }
-            rightSide.append(")");
-            calc.insert(j+1 + rightSide.length(), ")");
+            findRightInitialBracket(j, rightSide, open);
         } else {
-            for (int r = 0; r < calc.length(); r++) {
-                if (SIGNS.contains(calc.charAt(r) + "") && calc.charAt(r) != '.') {
-                    calc.insert(j +r+1, ")");
-                    break;
-                }
+            appendRightClosingBracket(j);
+        }
+    }
+
+    /**
+     * Iterates through the calc StringBuilder to the right of a given Index and finds the relevant '(' and appends all the relevant variables into the
+     * leftSide StringBuilder. If a closing bracket is found, which is not relevant to the current open bracket, it is added
+     * as a component of the sub-calculation inside the main brackets.
+     *
+     * @param rightSide
+     * @param open
+     */
+    private void findRightInitialBracket(int j, StringBuilder rightSide, int open) {
+        for (int i = j +1; i < calc.length(); i++) {
+            if (i < calc.length()-1 && calc.charAt(i+1) == '(') {
+                open++;
+            } if (open == 0 && calc.charAt(i) == ')') {
+                break;
+            }
+            rightSide.append(calc.charAt(i));
+        }
+        rightSide.append(")");
+        calc.insert(j +1 + rightSide.length(), ")");
+    }
+
+    private void appendRightClosingBracket(int j) {
+        for (int r = 0; r < calc.length(); r++) {
+            if (SIGNS.contains(calc.charAt(r) + "") && calc.charAt(r) != '.' && calc.charAt(r) != '?') {
+                calc.insert(j +r+1, ")");
+                break;
             }
         }
     }
@@ -167,29 +187,44 @@ public class Operations {
         StringBuilder leftSide = new StringBuilder();;
         int closed = 0;
 
-
         if (calc.charAt(j-1) == ')') {
-            for (int i = j-1; i >= 0; i--) {
-                if (i > 0 && calc.charAt(i-1) == ')') {
-                    closed++;
-                } if (closed == 0 && calc.charAt(i) == '(') {
-                    break;
-                }
-                leftSide.append(calc.charAt(i));
-            }
+            findLeftClosingBracket(j, leftSide, closed);
             leftSide.append("(");
-            calc.insert(j - 1 - leftSide.length(), "(");
+            calc.insert(j + 1 - leftSide.length(), "(");
         } else {
-            for (int l = j -1; l >= 0; l--) {
-                if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.') {
-                    calc.insert(j -l, "(");
-                    j++;
-                    break;
-                }
+            j = appendLeftInitialBracket(j);
+        }
+        return j;
+    }
+
+    private int appendLeftInitialBracket(int j) {
+        for (int l = j -1; l >= 0; l--) {
+            if (SIGNS.contains(calc.charAt(l) + "") && calc.charAt(l) != '.' && calc.charAt(l) != '?') {
+                calc.insert(j -l, "(");
+                j++;
+                break;
             }
         }
-        System.out.println(calc);
         return j;
+    }
+
+    /**
+     * Iterates through the calc StringBuilder to the left of a given Index and finds the relevant ')' and appends all the relevant variables into the
+     * leftSide StringBuilder. If a closing bracket is found, which is not relevant to the current open bracket, it is added
+     * as a component of the sub-calculation inside the main brackets.
+     *
+     * @param leftSide
+     * @param closed
+     */
+    private void findLeftClosingBracket(int index, StringBuilder leftSide, int closed) {
+        for (int i = index -1; i >= 0; i--) {
+            if (i > 0 && calc.charAt(i-1) == ')') {
+                closed++;
+            } if (closed == 0 && calc.charAt(i) == '(') {
+                break;
+            }
+            leftSide.append(calc.charAt(i));
+        }
     }
 
     /**
@@ -295,11 +330,14 @@ public class Operations {
      *
      * @throws InvalidInputException if open brackets are left unclosed.
      */
-    private void findBracketsGroups(ArrayList<Integer[]> bracketGroups) {
+    private ArrayList<Integer[]> findBracketsGroups() {
+        ArrayList<Integer[]> bracketGroups = new ArrayList<>();
         ArrayList<Integer> startIndices = new ArrayList<>();
 
         findIndices(startIndices);
         pairUpBrackets(bracketGroups, startIndices);
+
+        return bracketGroups;
     }
 
     private void findIndices(ArrayList<Integer> startIndices) {
@@ -319,6 +357,7 @@ public class Operations {
      */
     private void pairUpBrackets(ArrayList<Integer[]> bracketGroups, ArrayList<Integer> startIndices) {
         ArrayList<Integer> endIndices = new ArrayList<>();
+        ArrayList<Integer[]> reverseGroups = new ArrayList<>();
         int open = 0;
 
         //v3
@@ -326,8 +365,8 @@ public class Operations {
             for (int i = s; i < temp.length(); i++) {
                 if (i != s && startIndices.contains(i)) {
                     open++;
-                } else if (open == 0 && temp.charAt(i) == ')' && !endIndices.contains(calc.charAt(i))) {
-                    bracketGroups.add(new Integer[]{s, i});
+                } else if (open == 0 && temp.charAt(i) == ')' && !endIndices.contains(temp.charAt(i))) {
+                    reverseGroups.add(new Integer[]{s, i});
                     endIndices.add(i);
                     break;
                 } else if (temp.charAt(i) == ')') {
@@ -335,25 +374,9 @@ public class Operations {
                 }
             }
         }
-        /*
-        if (startIndices.size() != endIndices.size()) {
-            throw new InvalidInputException();
-        }*/
-        /*V2
-        for (int s = startIndices.size() - 1, i = 0; s >= 0 ; s--, i++) {
-            bracketGroups.add(new Integer[]{startIndices.get(s), 0});
-            for (int e = 0; e < endIndices.size(); e++) {
-                if (startIndices.get(s) < endIndices.get(e)) {
-                    bracketGroups.get(i)[1] = endIndices.remove(e);
-                }
-            }
-        }*/
-
-        /*V1
-        for (int i = startIndices.size(); i > 0; i--) {
-            bracketGroups.add(new Integer[]{startIndices.remove(i - 1), endIndices.remove(0)});
-        }*/
-
+        for (int i = reverseGroups.size() - 1; i >= 0; i--) {
+            bracketGroups.add(reverseGroups.get(i));
+        }
     }
 
     /**

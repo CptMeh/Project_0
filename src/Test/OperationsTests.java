@@ -84,6 +84,7 @@ public class OperationsTests {
         assertEquals(36, op.getResult());
     }
 
+
     @Test
     public void testEvaluateAddWithBothBracketTypes() {
         StringBuilder q = new StringBuilder("((3+3)*(3+3))*(3+3)");
