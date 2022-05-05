@@ -1,26 +1,14 @@
 package Test;
 
-import Calculator.Operations_V1;
 import Calculator.Operations;
 import org.junit.Test;
-
-import javax.swing.*;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 public class OperationsTests {
-
-    private final boolean print = true;
-
-    private Operations_V1 createNewOperation() {
-        JTextArea fake = mock(JTextArea.class);
-        Operations_V1 op = new Operations_V1(fake);
-        return op;
-    }
 
     @Test
     public void testParseAndEvaluate() {
